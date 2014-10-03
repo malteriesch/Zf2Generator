@@ -1,0 +1,4 @@
+    function @ACTION@Action()
+    {
+        return [];
+    }
