@@ -1,6 +1,6 @@
 {
-    "name": "test-db-acle/test-db-acle",
-    "description": "Framework for very lightweight setting up of database test data for unit tests",
+    "name": "malteriesch/zf2-code-generator",
+    "description": "very simple zf2 code generator that creates factories along side the actual classes",
     "keywords": ["zf2", "code generation"],
     "license": "BSD-3-Clause",
     "authors": [
