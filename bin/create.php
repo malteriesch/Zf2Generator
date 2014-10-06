@@ -1,5 +1,5 @@
 <?php
-chdir(dirname(__DIR__));
+chdir(dirname(dirname(dirname(dirname(__DIR__)))));
 
 // Setup autoloading
 require 'init_autoloader.php';
