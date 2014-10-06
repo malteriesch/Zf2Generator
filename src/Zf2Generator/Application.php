@@ -1,6 +1,6 @@
 <?php
 
-namespace Zf2Generator\Generator;
+namespace Zf2Generator;
 
 use Zend\Console\Adapter\AdapterInterface;
 use Zend\Console\ColorInterface;
