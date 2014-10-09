@@ -10,12 +10,12 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
-    },
-    "require-dev": {
+        "php": ">=5.4.0",
         "zendframework/zendframework": "2.3.*",
 	"zfcampus/zf-console": "~1.0-dev",
         "zfcampus/zf-configuration": "dev-master"
+    },
+    "require-dev": {
     },
     "autoload": {
         "psr-0": { "Zf2Generator": "src/" }
