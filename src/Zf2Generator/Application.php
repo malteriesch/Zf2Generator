@@ -110,7 +110,8 @@ class Application extends \ZF\Console\Application {
     
     protected function getLastFromNamespace($subject)
     {
-        return array_pop(explode('\\', $subject));
+        $namespaces = explode('\\', $subject);
+        return array_pop($namespaces);
     }
     
     protected function getVarnameFromClassname($classname) {
