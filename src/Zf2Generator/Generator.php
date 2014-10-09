@@ -75,11 +75,25 @@ class Generator
     {
         return $this->messages;
     }
-    
-    function insertMethodIntoClass($class, $action)
+    //rnemae to insertAtClassEnd
+    function insertMethodIntoClass($class, $content)
     {
         $reflectionClass = new \ReflectionClass($class);
-        $this->insertIntoFile($reflectionClass->getFileName(), $reflectionClass->getEndLine(), $this->processTemplateIntoString("Action.php.tpl",["ACTION"=>$action]));
+        $this->insertIntoFile($reflectionClass->getFileName(), $reflectionClass->getEndLine(), $content);
+    }
+    
+    function insertPropertyIntoClass($class, $name, $type)
+    {
+        $reflectionClass = new \ReflectionClass($class);
+        $content = '    /* @var $'.$name.' '.$type.' */';
+        $content.="\n";
+        $content.='    protected $'.$name.';';
+        $this->insertIntoFile($reflectionClass->getFileName(), $reflectionClass->getStartLine()+2, $content);
+    }
+    
+    function insertAction($class, $action)
+    {
+        $this->insertMethodIntoClass($class, $this->processTemplateIntoString("Action.php.tpl",["ACTION"=>$action]));
     }
     
     function insertIntoFile($file, $lineNumber, $content)

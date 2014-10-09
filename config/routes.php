@@ -1,5 +1,5 @@
-<?php
-
+<?php 
+use Zend\Filter\Callback as CallbackFilter;
 return [                          // Route definition
             [
 
@@ -49,5 +49,26 @@ return [                          // Route definition
                 'defaults'          => [
                 ],
                 'handler'           => array($this, 'createAction'),
+            ],
+            [
+
+                'name'              => 'member',
+                'route'             => 'member <target_class>  <member_class> [<member_name>] [--options=] ',
+                'description'       => 'Create new member in class with optional getter and setter and/or constructor',
+                'short_description' => 'Create new member',
+                'defaults'          => [
+                    'member_name' => false,
+                    'options' => [
+                    ]
+                ],
+                'filters' => array(
+                    'options' => new CallbackFilter(function ($value) {
+                        if (! is_string($value)) {
+                            return $value;
+                        }
+                        return explode(',', $value);
+                    }),
+                ),
+                'handler'           => array($this, 'createMember'),
             ]
         ];

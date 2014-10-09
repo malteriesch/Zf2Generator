@@ -17,7 +17,7 @@ class Application extends \ZF\Console\Application {
     }
 
     function getConfiguration() {
-        return include 'tools/config/routes.php';
+        return include __DIR__.'/../../config/routes.php';
     }
 
     public function createRoute(Route $route, AdapterInterface $console) {
@@ -100,5 +100,70 @@ class Application extends \ZF\Console\Application {
         foreach ($messages as $message) {
             $this->console->writeLine($message, ColorInterface::LIGHT_RED);
         }
+    }
+    
+    protected function lowercaseFirst($subject)
+    {
+        $subject[0] = strtolower($subject[0]);
+        return $subject;
+    }
+    
+    protected function getLastFromNamespace($subject)
+    {
+        return array_pop(explode('\\', $subject));
+    }
+    
+    protected function getVarnameFromClassname($classname) {
+        
+        return $this->lowercaseFirst($this->getLastFromNamespace($classname));
+        
+    }
+            
+    public function createMember(Route $route, AdapterInterface $console) {
+        
+        $targetClass = $route->getMatchedParam('target_class');
+        $memberClass = $route->getMatchedParam('member_class');
+        $memberClassShort = $this->getLastFromNamespace($route->getMatchedParam('member_class'));
+        
+        $memberName = $route->getMatchedParam('member_name');
+        if(!$memberName) {
+            $memberName = $this->getVarnameFromClassname($memberClass);
+        }
+        $options = $route->getMatchedParam('options');
+        
+        $addSetter = in_array('setter', $options);
+        $addGetter = in_array('getter', $options);
+        $addToConstructor = in_array('constructor', $options);
+        
+        $generator   = new Generator(null);
+        $generator->insertPropertyIntoClass($targetClass, $memberName, $memberClass);
+        
+        $method ="    /**\n";
+        $method.="     *\n";
+        $method.="     * @return \\$memberClass\n";
+        $method.="     */\n";
+        
+     
+     
+        $method.="    public function get$memberClassShort()\n";
+        $method.="    {\n";
+        $method.="        if (!\$this->$memberName) {\n";
+        $method.="            \$this->set$memberClassShort(new \\$memberClass());\n";
+        $method.="        }\n";
+        $method.="        return \$this->$memberName;\n";
+        $method.="    }\n\n";
+        
+        $method.="    /**\n";
+        $method.="     *\n";
+        $method.="     * @param \\$memberClass \$$memberName\n";
+        $method.="     */\n";
+        
+        $method.="    public function set$memberClassShort(\\$memberClass \$$memberName)\n";
+        $method.="    {\n";
+        $method.="        \$this->$memberName = \$$memberName;\n";
+        $method.="    }";
+        $generator->insertMethodIntoClass($targetClass, $method);
+        
+        $this->echoMessages($generator->getMessages());
     }
 }
