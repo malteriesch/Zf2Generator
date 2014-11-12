@@ -167,4 +167,61 @@ class Application extends \ZF\Console\Application {
         
         $this->echoMessages($generator->getMessages());
     }
+    protected function cleanNamespace($toClean)
+    {
+        return trim(str_replace("\\\\","\\",$toClean),'\\');
+    }
+    protected function cleanPath($toClean)
+    {
+        return str_replace("//","/",$toClean);
+    }
+    public function createModuleClass(Route $route, AdapterInterface $console) {
+        $serviceLocatorKey = $route->getMatchedParam('key');
+        $template = $route->getMatchedParam('template');
+        
+        $fullClassPath = ltrim($route->getMatchedParam('class'),'\\');
+        $classParts     = explode('\\', $fullClassPath);
+        
+        $module = $classParts[0];
+        $classToGenerate = $classParts[count($classParts)-1];
+        
+        $namespaceParts = $classParts;
+        array_pop($namespaceParts);
+        $namespace=$this->cleanNamespace(implode('\\',$namespaceParts));
+        
+        
+        array_shift($namespaceParts);
+        $nameSpaceMiddle = $this->cleanNamespace(implode('\\',$namespaceParts));
+       
+        $section = array_shift($namespaceParts);
+        $localPath = $this->cleanNamespace(implode('\\',$namespaceParts));
+        
+        $factoryPath= "$module\\$section\\Factory\\$localPath\\{$classToGenerate}Factory";
+        
+        
+        $classPath= "$module\\$section\\Factory\\$localPath\\{$classToGenerate}";
+        $factoryNameSpace = $this->cleanNamespace("$module\\$section\\Factory\\$localPath");
+        
+        
+        $factoryPhpPath=$this->cleanPath(str_replace("\\","/",$factoryPath).".php");
+        $classPhpPath=$this->cleanPath(str_replace("\\","/",$classPath).".php");
+        
+
+        $patch = array(
+            $serviceLocatorKey => array(
+                'factories' => array(
+                    "$fullClassPath" => $factoryPath
+                ),
+            ),
+        );
+
+//        $configResource = new ConfigResource(array(), "module/$moduleName/config/module.config.php", new \Zend\Config\Writer\PhpArray());
+//        $configResource->patch($patch);
+
+        $generator = new Generator($module);
+        $generator->processSourceTemplate("classes/Factory.php.tpl", $factoryPhpPath, ['NAMESPACE' => $factoryNameSpace, 'CLASS' => $classToGenerate]);
+        $generator->processSourceTemplate("classes/Class.php.tpl", $classPhpPath, ['NAMESPACE' => $namespace, 'CLASS' => $classToGenerate]);
+
+        $this->echoMessages($generator->getMessages());
+    }
 }

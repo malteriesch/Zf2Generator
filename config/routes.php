@@ -22,6 +22,17 @@ return [                          // Route definition
             ],
             [
 
+                'name'              => 'module-class',
+                'route'             => 'module-class  <class> <template> [<key>]',
+                'description'       => 'Create new module class',
+                'short_description' => 'Create new module class',
+                'defaults'          => [
+                    'key'=>'service_manager'
+                ],
+                'handler'           => array($this, 'createModuleClass')
+            ],
+            [
+
                 'name'              => 'route',
                 'route'             => 'route <module> <path> <controller> <action>',
                 'description'       => 'Create new route',

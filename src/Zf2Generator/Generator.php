@@ -9,7 +9,10 @@ class Generator
     protected $basePath;
     protected $messages = [];
     
-    function __construct($module = null, $templatePath="tools/templates") {
+    function __construct($module = null, $templatePath=null) {
+        if ($templatePath==null){
+            $templatePath = dirname(dirname(__DIR__));
+        }
         $this->module       = $module;
         $this->templatePath = $templatePath;
         $this->basePath     = "module/$module/";
