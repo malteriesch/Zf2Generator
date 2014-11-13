@@ -1,0 +1,14 @@
+<phpunit bootstrap="./Bootstrap.php" colors="true" > 
+    <testsuite name="Test-DB-Acle Test Suite">
+        <directory>./Zf2Generator</directory>
+    </testsuite>
+
+    <groups>
+        <exclude>
+            <group>disable</group>
+        </exclude>
+    </groups>
+
+   
+  
+</phpunit>

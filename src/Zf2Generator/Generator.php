@@ -74,6 +74,11 @@ class Generator
         $this->processTemplate($source, "src/{$this->module}/$destination", $replacements);
     }
     
+    function processClassTemplate($source, $destination, array $replacements)
+    {
+        $this->processTemplate($source, "src/$destination", $replacements);
+    }
+    
     function getMessages()
     {
         return $this->messages;

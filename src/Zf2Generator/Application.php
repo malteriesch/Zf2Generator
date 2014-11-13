@@ -176,51 +176,62 @@ class Application extends \ZF\Console\Application {
         return str_replace("//","/",$toClean);
     }
     public function createModuleClass(Route $route, AdapterInterface $console) {
-        $serviceLocatorKey = $route->getMatchedParam('key');
+//        $serviceLocatorKey = $route->getMatchedParam('key');
+//        $template = $route->getMatchedParam('template');
+//        
+//        $classInfo = new Psr2ClassInfo($route->getMatchedParam('class'));
+//        $factoryClassInfo = $classInfo->getFactoryClassInfo();
+//        $fullClassPath = ltrim($route->getMatchedParam('class'),'\\');
+//        $classParts     = explode('\\', $fullClassPath);
+//        
+//        $module = $classParts[0];
+//        $classToGenerate = $classParts[count($classParts)-1];
+//        
+//        $namespaceParts = $classParts;
+//        array_pop($namespaceParts);
+//        $namespace=$this->cleanNamespace(implode('\\',$namespaceParts));
+//        
+//        
+//        array_shift($namespaceParts);
+//        $nameSpaceMiddle = $this->cleanNamespace(implode('\\',$namespaceParts));
+//       
+//        $section = array_shift($namespaceParts);
+//        $localPath = $this->cleanNamespace(implode('\\',$namespaceParts));
+//        
+//        $factoryPath= "$module\\$section\\Factory\\$localPath\\{$classToGenerate}Factory";
+//        
+//        
+//        $classPath= "$module\\$section\\Factory\\$localPath\\{$classToGenerate}";
+//        $factoryNameSpace = $this->cleanNamespace("$module\\$section\\Factory\\$localPath");
+//        
+//        
+//        $factoryPhpPath=$this->cleanPath(str_replace("\\","/",$factoryPath).".php");
+//        $classPhpPath=$this->cleanPath(str_replace("\\","/",$classPath).".php");
+//        
+
+        $classType = $route->getMatchedParam('type');
         $template = $route->getMatchedParam('template');
         
-        $fullClassPath = ltrim($route->getMatchedParam('class'),'\\');
-        $classParts     = explode('\\', $fullClassPath);
-        
-        $module = $classParts[0];
-        $classToGenerate = $classParts[count($classParts)-1];
-        
-        $namespaceParts = $classParts;
-        array_pop($namespaceParts);
-        $namespace=$this->cleanNamespace(implode('\\',$namespaceParts));
-        
-        
-        array_shift($namespaceParts);
-        $nameSpaceMiddle = $this->cleanNamespace(implode('\\',$namespaceParts));
-       
-        $section = array_shift($namespaceParts);
-        $localPath = $this->cleanNamespace(implode('\\',$namespaceParts));
-        
-        $factoryPath= "$module\\$section\\Factory\\$localPath\\{$classToGenerate}Factory";
-        
-        
-        $classPath= "$module\\$section\\Factory\\$localPath\\{$classToGenerate}";
-        $factoryNameSpace = $this->cleanNamespace("$module\\$section\\Factory\\$localPath");
-        
-        
-        $factoryPhpPath=$this->cleanPath(str_replace("\\","/",$factoryPath).".php");
-        $classPhpPath=$this->cleanPath(str_replace("\\","/",$classPath).".php");
-        
-
+        $classInfo = new Psr2ClassInfo($route->getMatchedParam('class'));
+        $factoryClassInfo = $classInfo->getFactoryClassInfo();
+        $type = ClassTypes\AbstractClassType::create($classType);
         $patch = array(
-            $serviceLocatorKey => array(
+            $type->getServiceLocatorSectionKey() => array(
                 'factories' => array(
-                    "$fullClassPath" => $factoryPath
+                    $type->getServiceLocatorKey($classInfo->getFullyQualifiedClass()) => $factoryClassInfo->getFullyQualifiedClass()
                 ),
             ),
         );
 
-//        $configResource = new ConfigResource(array(), "module/$moduleName/config/module.config.php", new \Zend\Config\Writer\PhpArray());
-//        $configResource->patch($patch);
+        $moduleName = $classInfo->getModule();
+        $configResource = new ConfigResource(array(), "module/$moduleName/config/module.config.php", new \Zend\Config\Writer\PhpArray());
+        $configResource->patch($patch);
 
-        $generator = new Generator($module);
-        $generator->processSourceTemplate("classes/Factory.php.tpl", $factoryPhpPath, ['NAMESPACE' => $factoryNameSpace, 'CLASS' => $classToGenerate]);
-        $generator->processSourceTemplate("classes/Class.php.tpl", $classPhpPath, ['NAMESPACE' => $namespace, 'CLASS' => $classToGenerate]);
+       
+        
+        $generator = new Generator($moduleName);
+        $generator->processClassTemplate("templates/classes/Factory.php.tpl", $factoryClassInfo->getPhpPath(), ['NAMESPACE' => $factoryClassInfo->getNamespace(), 'CLASS' => $factoryClassInfo->getShortClassname(), 'FULL_CLASS_PATH'=>$classInfo->getFullyQualifiedClass()]);
+        $generator->processClassTemplate("templates/classes/$classType.php.tpl", $classInfo->getPhpPath(), ['NAMESPACE' => $classInfo->getNamespace(), 'CLASS' => $classInfo->getShortClassname()]);
 
         $this->echoMessages($generator->getMessages());
     }

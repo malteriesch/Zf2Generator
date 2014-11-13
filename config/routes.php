@@ -23,11 +23,11 @@ return [                          // Route definition
             [
 
                 'name'              => 'module-class',
-                'route'             => 'module-class  <class> <template> [<key>]',
+                'route'             => 'module-class  <class> [<type>]',
                 'description'       => 'Create new module class',
                 'short_description' => 'Create new module class',
                 'defaults'          => [
-                    'key'=>'service_manager'
+                    'type'=>'Service'
                 ],
                 'handler'           => array($this, 'createModuleClass')
             ],
